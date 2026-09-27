@@ -128,6 +128,12 @@ export const api = {
     return res.json();
   },
 
+  getProfileById: async (id: string) => {
+    const res = await fetch(`${API_URL}/profiles/${id}`);
+    if (!res.ok) throw new Error('Failed to fetch profile');
+    return res.json();
+  },
+
   getDashboard: async () => {
     const res = await fetch(`${API_URL}/profiles/me/dashboard`, {
       headers: authHeaders(),

@@ -5,6 +5,7 @@ import { PersonCard } from '@/components/people/PersonCard';
 import { PeopleFilterBar } from '@/components/people/PeopleFilterBar';
 import { Person } from '@/types';
 import { api } from '@/lib/api';
+import { getDynamicProfileDefaults } from '@/lib/profileHelpers';
 
 export default function PeoplePage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,6 +18,9 @@ export default function PeoplePage() {
       .then((data: any[]) => {
         if (Array.isArray(data)) {
           const mapped: Person[] = data.map((p) => {
+            const roleCat = (p.role_category as any) || 'developer';
+            const defaults = getDynamicProfileDefaults(roleCat);
+
             const rawSkills = Array.isArray(p.skills)
               ? p.skills
               : typeof p.skills === 'string' && p.skills
@@ -27,10 +31,10 @@ export default function PeoplePage() {
               id: p.id,
               name: p.name || 'Anonymous',
               initials: p.initials || 'AN',
-              role: p.role || 'Builder',
-              roleCategory: (p.role_category as any) || 'developer',
-              bio: p.bio || 'Community builder & innovator.',
-              skills: rawSkills.length ? rawSkills : ['Collaboration', 'Problem Solving'],
+              role: p.role || (roleCat.charAt(0).toUpperCase() + roleCat.slice(1)),
+              roleCategory: roleCat,
+              bio: p.bio || defaults.bio,
+              skills: rawSkills.length ? rawSkills : defaults.skills,
               location: p.location || 'Global',
             };
           });

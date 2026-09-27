@@ -42,7 +42,7 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person }) => {
 
       {/* Profile Button */}
       <Link
-        href="/profile"
+        href={`/profile/${person.id}`}
         className="w-full py-2 px-4 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all"
       >
         View Profile

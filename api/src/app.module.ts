@@ -36,8 +36,14 @@ import { VotesModule } from './votes/votes.module';
         database: configService.get<string>('DB_NAME'),
         entities: [Profile, Problem, Idea, Comment, Vote, Team, TeamMember],
         synchronize: false,
-        ssl: { rejectUnauthorized: false }, // Required for Supabase
-        extra: { family: 4 }, // Force IPv4 — Supabase direct host resolves to IPv6 on some networks
+        ssl: {
+          rejectUnauthorized: false,
+          // SNI needed when connecting via raw IP instead of hostname
+          servername: 'aws-0-ap-northeast-2.pooler.supabase.com',
+        },
+        extra: {
+          connectionTimeoutMillis: 10000,
+        },
       }),
     }),
     AuthModule,
@@ -47,7 +53,7 @@ import { VotesModule } from './votes/votes.module';
     ProfilesModule,
     VotesModule,
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
+      rootPath: join(__dirname, '..', '..', 'uploads'),
       serveRoot: '/uploads/',
     }),
   ],

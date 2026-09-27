@@ -44,10 +44,8 @@ export interface Problem {
     images: number;
     solutions: number;
   };
-  lookingForRoles?: {
-    role: string;
-    countNeeded: number;
-  }[];
+  evidence_image_urls?: string[];
+  lookingForRoles?: string[];
 }
 
 export interface Idea {

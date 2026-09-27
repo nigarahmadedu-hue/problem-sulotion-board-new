@@ -43,10 +43,10 @@ export const PROBLEMS: Problem[] = [
       solutions: 2,
     },
     lookingForRoles: [
-      { role: 'AI Engineer', countNeeded: 2 },
-      { role: 'Developer', countNeeded: 1 },
-      { role: 'Domain Expert', countNeeded: 1 },
-      { role: 'Designer', countNeeded: 1 },
+      'AI Engineer',
+      'Developer',
+      'Domain Expert',
+      'Designer',
     ],
   },
   {
@@ -73,8 +73,8 @@ export const PROBLEMS: Problem[] = [
     whoFacesIt: ['Undergraduate Students', 'Self-taught Coders', 'Teachers', 'University Labs'],
     evidence: { references: 5, images: 2, solutions: 3 },
     lookingForRoles: [
-      { role: 'Educator', countNeeded: 2 },
-      { role: 'Full Stack Dev', countNeeded: 2 },
+      'Educator',
+      'Full Stack Dev',
     ],
   },
   {
@@ -101,8 +101,8 @@ export const PROBLEMS: Problem[] = [
     whoFacesIt: ['Residents', 'Sanitation Staff', 'Municipal Councils'],
     evidence: { references: 2, images: 6, solutions: 1 },
     lookingForRoles: [
-      { role: 'IoT Specialist', countNeeded: 1 },
-      { role: 'Mobile Dev', countNeeded: 2 },
+      'IoT Specialist',
+      'Mobile Dev',
     ],
   },
   {
@@ -129,8 +129,8 @@ export const PROBLEMS: Problem[] = [
     whoFacesIt: ['Patients', 'Elderly Caregivers', 'General Practitioners'],
     evidence: { references: 4, images: 1, solutions: 2 },
     lookingForRoles: [
-      { role: 'Medical Consultant', countNeeded: 1 },
-      { role: 'NLP Engineer', countNeeded: 1 },
+      'Medical Consultant',
+      'NLP Engineer',
     ],
   },
   {
@@ -157,8 +157,8 @@ export const PROBLEMS: Problem[] = [
     whoFacesIt: ['Retailers', 'Wholesalers', 'Shopkeepers'],
     evidence: { references: 3, images: 3, solutions: 4 },
     lookingForRoles: [
-      { role: 'Full Stack Dev', countNeeded: 2 },
-      { role: 'UI Designer', countNeeded: 1 },
+      'Full Stack Dev',
+      'UI Designer',
     ],
   },
   {
@@ -185,8 +185,8 @@ export const PROBLEMS: Problem[] = [
     whoFacesIt: ['Researchers', 'Developers', 'Writers', 'Students'],
     evidence: { references: 6, images: 5, solutions: 5 },
     lookingForRoles: [
-      { role: 'Frontend Engineer', countNeeded: 2 },
-      { role: 'Vector DB Expert', countNeeded: 1 },
+      'Frontend Engineer',
+      'Vector DB Expert',
     ],
   },
 ];

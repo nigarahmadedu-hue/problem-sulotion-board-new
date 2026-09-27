@@ -40,6 +40,7 @@ export default function SubmitProblemPage() {
   const [description, setDescription] = useState('');
   const [whoFacesIt, setWhoFacesIt] = useState('');
   const [fullDescription, setFullDescription] = useState('');
+  const [evidenceImage, setEvidenceImage] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
@@ -68,7 +69,7 @@ export default function SubmitProblemPage() {
     const slug = generateSlug(title);
 
     try {
-      await api.createProblem({
+      const newProblem = await api.createProblem({
         title: title.trim(),
         slug,
         category,
@@ -79,6 +80,11 @@ export default function SubmitProblemPage() {
         stage: 'Submitted',
         author_id: ANONYMOUS_AUTHOR_ID,
       });
+
+      if (evidenceImage && newProblem?.id) {
+        await api.uploadEvidenceImage(newProblem.id, evidenceImage);
+      }
+
       setSubmitting(false);
       setSubmitted(true);
       setTimeout(() => {
@@ -246,6 +252,24 @@ export default function SubmitProblemPage() {
               'Add more context, background, causes, and impact...\n\nSeparate paragraphs with a blank line.'
             }
             className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all resize-none"
+          />
+        </div>
+
+        {/* Evidence Image */}
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+            Evidence Image (Optional)
+          </label>
+          <input
+            id="problem-evidence-image"
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                setEvidenceImage(e.target.files[0]);
+              }
+            }}
+            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all"
           />
         </div>
 

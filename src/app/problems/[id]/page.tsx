@@ -12,6 +12,7 @@ import { IdeaCard } from '@/components/problems/IdeaCard';
 import { CommentSection } from '@/components/problems/CommentSection';
 import { SidebarTeamWidget } from '@/components/problems/SidebarTeamWidget';
 import { SidebarRolesWidget } from '@/components/problems/SidebarRolesWidget';
+import { AIPossibleSolutions } from '@/components/problems/AIPossibleSolutions';
 
 interface ProblemDetailPageProps {
   params: {
@@ -104,6 +105,7 @@ export default function ProblemDetailPage({ params }: ProblemDetailPageProps) {
           images: pData.evidence_images || 0,
           solutions: pData.evidence_solutions || 0,
         },
+        evidence_image_urls: pData.evidence_image_urls || [],
         lookingForRoles: pData.looking_for_roles || [],
       };
       setProblem(mappedProblem);
@@ -382,73 +384,10 @@ export default function ProblemDetailPage({ params }: ProblemDetailPageProps) {
               />
             </div>
 
-            {/* Evidence Images Gallery */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                  <span>📷</span> Evidence Images
-                </h3>
-                {currentUser && (
-                  <div className="relative">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      id="evidence-upload"
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                      disabled={isUploadingImage}
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          try {
-                            setIsUploadingImage(true);
-                            await api.uploadEvidenceImage(problem.id, file);
-                            // Refresh the page data
-                            window.location.reload();
-                          } catch (err) {
-                            alert('Failed to upload image. Please try again.');
-                          } finally {
-                            setIsUploadingImage(false);
-                          }
-                        }
-                      }}
-                    />
-                    <button
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
-                      disabled={isUploadingImage}
-                    >
-                      {isUploadingImage ? 'Uploading...' : '+ Upload'}
-                    </button>
-                  </div>
-                )}
-              </div>
-              
-              {problem.evidence_image_urls && problem.evidence_image_urls.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {problem.evidence_image_urls.map((url: string, i: number) => (
-                    <div
-                      key={i}
-                      className="aspect-square bg-slate-100 border border-slate-200 rounded-xl overflow-hidden cursor-pointer hover:border-slate-300 transition-all"
-                      onClick={() => window.open(`http://localhost:3001${url}`, '_blank')}
-                    >
-                      <img 
-                        src={`http://localhost:3001${url}`} 
-                        alt={`Evidence ${i + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center">
-                  <span className="text-3xl block mb-2">📷</span>
-                  <p className="text-sm font-semibold text-slate-600 mb-1">No images uploaded yet</p>
-                  <p className="text-xs text-slate-400">
-                    Evidence images help validate the problem and build trust.
-                  </p>
-                </div>
-              )}
-            </div>
           </section>
+
+          {/* AI Possible Solutions Section */}
+          <AIPossibleSolutions problem={problem} />
 
           {/* ── Proposed Ideas / Solutions Section ── */}
           <section
@@ -530,7 +469,7 @@ export default function ProblemDetailPage({ params }: ProblemDetailPageProps) {
         {/* Sidebar */}
         <aside className="lg:col-span-4 sticky top-24 space-y-5">
           <SidebarTeamWidget />
-          <SidebarRolesWidget roles={problem.lookingForRoles} />
+          <SidebarRolesWidget roles={problem.lookingForRoles} problemId={problem.id} isLoggedIn={!!currentUser} />
 
           {/* Quick links card */}
           <div className="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm">
