@@ -40,6 +40,8 @@ export default function SubmitProblemPage() {
   const [description, setDescription] = useState('');
   const [whoFacesIt, setWhoFacesIt] = useState('');
   const [fullDescription, setFullDescription] = useState('');
+  const [evidenceReferences, setEvidenceReferences] = useState(0);
+  const [evidenceSolutions, setEvidenceSolutions] = useState(0);
   const [evidenceImage, setEvidenceImage] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -79,6 +81,8 @@ export default function SubmitProblemPage() {
         who_faces_it: whoFacesItArray.length ? whoFacesItArray : null,
         stage: 'Submitted',
         author_id: ANONYMOUS_AUTHOR_ID,
+        evidence_references: evidenceReferences,
+        evidence_solutions: evidenceSolutions,
       });
 
       if (evidenceImage && newProblem?.id) {
@@ -253,6 +257,45 @@ export default function SubmitProblemPage() {
             }
             className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all resize-none"
           />
+        </div>
+
+        {/* Evidence Counters */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          {/* Research References */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+              Research References
+            </label>
+            <p className="text-xs text-slate-400 mb-2">
+              How many studies, articles, or reports back up this problem?
+            </p>
+            <input
+              id="problem-evidence-references"
+              type="number"
+              min={0}
+              value={evidenceReferences}
+              onChange={(e) => setEvidenceReferences(Math.max(0, parseInt(e.target.value) || 0))}
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all"
+            />
+          </div>
+
+          {/* Existing Solutions */}
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+              Existing Solutions
+            </label>
+            <p className="text-xs text-slate-400 mb-2">
+              How many existing products or approaches already try to solve this?
+            </p>
+            <input
+              id="problem-evidence-solutions"
+              type="number"
+              min={0}
+              value={evidenceSolutions}
+              onChange={(e) => setEvidenceSolutions(Math.max(0, parseInt(e.target.value) || 0))}
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all"
+            />
+          </div>
         </div>
 
         {/* Evidence Image */}
