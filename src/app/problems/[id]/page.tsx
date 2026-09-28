@@ -369,18 +369,10 @@ export default function ProblemDetailPage({ params }: ProblemDetailPageProps) {
             </span>
 
             {/* Evidence counters */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <EvidenceCard
-                count={problem.evidence?.references || 0}
-                label="Research references"
-              />
+            <div className="grid grid-cols-1 gap-4 mb-6">
               <EvidenceCard
                 count={problem.evidence?.images || 0}
                 label="Images"
-              />
-              <EvidenceCard
-                count={problem.evidence?.solutions || 0}
-                label="Existing solutions"
               />
             </div>
 
@@ -483,7 +475,7 @@ export default function ProblemDetailPage({ params }: ProblemDetailPageProps) {
               >
                 <span>💡</span> Propose a Solution
               </Link>
-              <a
+<a              
                 href="#ideas-section"
                 className="flex items-center gap-2.5 w-full px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold transition-colors"
               >
