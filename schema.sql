@@ -110,6 +110,21 @@ CREATE POLICY "public insert comments" ON comments FOR INSERT WITH CHECK (true);
 CREATE POLICY "public insert votes" ON votes FOR INSERT WITH CHECK (true);
 CREATE POLICY "public insert profiles" ON profiles FOR INSERT WITH CHECK (true);
 
+-- 8. Messages Table
+CREATE TABLE messages (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    sender_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    receiver_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public read messages" ON messages FOR SELECT USING (true);
+CREATE POLICY "public insert messages" ON messages FOR INSERT WITH CHECK (true);
+CREATE POLICY "public update messages" ON messages FOR UPDATE USING (true);
+
 -- Seed one placeholder profile so the existing form's ANONYMOUS_AUTHOR_ID works
 INSERT INTO profiles (id, name, initials)
 VALUES ('5a126e26-2720-4c2a-811b-76b7e57ef36e', 'Anonymous', 'NA')

@@ -40,8 +40,7 @@ export default function SubmitProblemPage() {
   const [description, setDescription] = useState('');
   const [whoFacesIt, setWhoFacesIt] = useState('');
   const [fullDescription, setFullDescription] = useState('');
-  const [evidenceReferences, setEvidenceReferences] = useState(0);
-  const [evidenceSolutions, setEvidenceSolutions] = useState(0);
+  const [submittingStatus, setSubmittingStatus] = useState('');
   const [evidenceImage, setEvidenceImage] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -57,6 +56,7 @@ export default function SubmitProblemPage() {
     }
 
     setSubmitting(true);
+    setSubmittingStatus('Saving your problem…');
 
     const whoFacesItArray = whoFacesIt
       .split(',')
@@ -71,6 +71,7 @@ export default function SubmitProblemPage() {
     const slug = generateSlug(title);
 
     try {
+      // Step 1: Create the problem record with placeholder evidence counts
       const newProblem = await api.createProblem({
         title: title.trim(),
         slug,
@@ -81,15 +82,43 @@ export default function SubmitProblemPage() {
         who_faces_it: whoFacesItArray.length ? whoFacesItArray : null,
         stage: 'Submitted',
         author_id: ANONYMOUS_AUTHOR_ID,
-        evidence_references: evidenceReferences,
-        evidence_solutions: evidenceSolutions,
+        evidence_references: 0,
+        evidence_solutions: 0,
       });
 
+      // Step 2: Upload evidence image (if any)
       if (evidenceImage && newProblem?.id) {
         await api.uploadEvidenceImage(newProblem.id, evidenceImage);
       }
 
+      // Step 3: Auto-analyze evidence counts via AI
+      if (newProblem?.id) {
+        setSubmittingStatus('Analyzing evidence & references…');
+        try {
+          const analysisRes = await fetch('/api/analyze-evidence', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: title.trim(),
+              description: description.trim(),
+              category,
+            }),
+          });
+          if (analysisRes.ok) {
+            const { existingSolutions, researchReferences } = await analysisRes.json();
+            await api.updateProblem(newProblem.id, {
+              evidence_solutions: existingSolutions,
+              evidence_references: researchReferences,
+            });
+          }
+        } catch (analysisErr) {
+          // Non-fatal: problem is already saved, evidence counts just remain at 0
+          console.warn('Evidence analysis failed (non-fatal):', analysisErr);
+        }
+      }
+
       setSubmitting(false);
+      setSubmittingStatus('');
       setSubmitted(true);
       setTimeout(() => {
         router.push('/problems');
@@ -97,6 +126,7 @@ export default function SubmitProblemPage() {
     } catch (err: any) {
       console.error(err);
       setSubmitting(false);
+      setSubmittingStatus('');
       setError('Something went wrong while submitting. Please try again.');
     }
   };
@@ -259,42 +289,15 @@ export default function SubmitProblemPage() {
           />
         </div>
 
-        {/* Evidence Counters */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {/* Research References */}
+        {/* Auto-Analysis Notice */}
+        <div className="flex items-start gap-3 px-4 py-3.5 bg-indigo-50 border border-indigo-100 rounded-xl">
+          <span className="text-xl mt-0.5">🤖</span>
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-              Research References
-            </label>
-            <p className="text-xs text-slate-400 mb-2">
-              How many studies, articles, or reports back up this problem?
+            <p className="text-xs font-bold text-indigo-800 mb-0.5">Evidence counts are determined automatically</p>
+            <p className="text-xs text-indigo-600 leading-relaxed">
+              After you submit, our AI will analyze your problem and automatically estimate the number of
+              existing solutions and research references — no manual input needed.
             </p>
-            <input
-              id="problem-evidence-references"
-              type="number"
-              min={0}
-              value={evidenceReferences}
-              onChange={(e) => setEvidenceReferences(Math.max(0, parseInt(e.target.value) || 0))}
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all"
-            />
-          </div>
-
-          {/* Existing Solutions */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-              Existing Solutions
-            </label>
-            <p className="text-xs text-slate-400 mb-2">
-              How many existing products or approaches already try to solve this?
-            </p>
-            <input
-              id="problem-evidence-solutions"
-              type="number"
-              min={0}
-              value={evidenceSolutions}
-              onChange={(e) => setEvidenceSolutions(Math.max(0, parseInt(e.target.value) || 0))}
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all"
-            />
           </div>
         </div>
 
@@ -324,23 +327,28 @@ export default function SubmitProblemPage() {
           >
             Cancel
           </Link>
-          <button
-            id="submit-problem-btn"
-            type="submit"
-            disabled={submitting || submitted}
-            className="px-7 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold shadow-sm transition-all flex items-center gap-2"
-          >
-            {submitting ? (
-              <>
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Submitting…
-              </>
-            ) : submitted ? (
-              '✓ Submitted!'
-            ) : (
-              'Submit Problem →'
+          <div className="flex flex-col items-end gap-1">
+            {submitting && submittingStatus && (
+              <span className="text-xs text-slate-500 font-medium animate-pulse">{submittingStatus}</span>
             )}
-          </button>
+            <button
+              id="submit-problem-btn"
+              type="submit"
+              disabled={submitting || submitted}
+              className="px-7 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold shadow-sm transition-all flex items-center gap-2"
+            >
+              {submitting ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  {submittingStatus ? 'Working…' : 'Submitting…'}
+                </>
+              ) : submitted ? (
+                '✓ Submitted!'
+              ) : (
+                'Submit Problem →'
+              )}
+            </button>
+          </div>
         </div>
       </form>
 

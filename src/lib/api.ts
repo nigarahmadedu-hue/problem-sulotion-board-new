@@ -169,4 +169,44 @@ export const api = {
     if (!res.ok) throw new Error('Not authenticated');
     return res.json();
   },
+
+  // ── Messaging ──────────────────────────────────────────────────────────────
+
+  sendMessage: async (receiverId: string, content: string) => {
+    const res = await fetch(`${API_URL}/messages`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ receiverId, content }),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Failed to send message: ${res.status} ${text}`);
+    }
+    return res.json();
+  },
+
+  getConversations: async () => {
+    const res = await fetch(`${API_URL}/messages/conversations`, {
+      headers: authHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch conversations');
+    return res.json();
+  },
+
+  getConversation: async (userId: string) => {
+    const res = await fetch(`${API_URL}/messages/conversation/${userId}`, {
+      headers: authHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to fetch conversation');
+    return res.json();
+  },
+
+  markMessageRead: async (messageId: string) => {
+    const res = await fetch(`${API_URL}/messages/${messageId}/read`, {
+      method: 'PATCH',
+      headers: authHeaders(),
+    });
+    if (!res.ok) throw new Error('Failed to mark message as read');
+    return res.json();
+  },
 };
